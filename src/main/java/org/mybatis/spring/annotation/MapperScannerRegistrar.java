@@ -75,7 +75,6 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
   }
 
   void registerBeanDefinitions(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
-
     // 获得spring的注册器registry
     ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);
 

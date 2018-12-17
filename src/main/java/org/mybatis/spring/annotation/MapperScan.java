@@ -76,6 +76,7 @@ import org.springframework.context.annotation.Import;
 public @interface MapperScan {
 
   /**
+   * basePackages 别名
    * Alias for the {@link #basePackages()} attribute. Allows for more concise
    * annotation declarations e.g.:
    * {@code @MapperScan("org.my.pkg")} instead of {@code @MapperScan(basePackages = "org.my.pkg"})}.
@@ -85,6 +86,7 @@ public @interface MapperScan {
   String[] value() default {};
 
   /**
+   * 扫描的基包
    * Base packages to scan for MyBatis interfaces. Note that only interfaces
    * with at least one method will be registered; concrete classes will be
    * ignored.

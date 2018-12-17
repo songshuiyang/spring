@@ -79,7 +79,6 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
   private final SqlSessionFactory sqlSessionFactory;
 
   private final ExecutorType executorType;
-
   // SqlSession代理
   private final SqlSession sqlSessionProxy;
 
