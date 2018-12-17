@@ -35,6 +35,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * 实现 ImportBeanDefinitionRegistrar 手动注册bean到容器中，@MapperScan 注解的实现类
  * A {@link ImportBeanDefinitionRegistrar} to allow annotation configuration of
  * MyBatis mapper scanning. Using an @Enable annotation allows beans to be
  * registered via @Component configuration, whereas implementing
@@ -65,6 +66,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
    */
   @Override
   public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    // 拿到注解信息
     AnnotationAttributes mapperScanAttrs = AnnotationAttributes
         .fromMap(importingClassMetadata.getAnnotationAttributes(MapperScan.class.getName()));
     if (mapperScanAttrs != null) {
@@ -74,6 +76,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
 
   void registerBeanDefinitions(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
 
+    // 获得spring的注册器registry
     ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);
 
     // this check is needed in Spring 3.1
@@ -109,7 +112,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
         Arrays.stream(annoAttrs.getStringArray("value"))
             .filter(StringUtils::hasText)
             .collect(Collectors.toList()));
-
+    // 如果配置了包路径则将入进去
     basePackages.addAll(
         Arrays.stream(annoAttrs.getStringArray("basePackages"))
             .filter(StringUtils::hasText)

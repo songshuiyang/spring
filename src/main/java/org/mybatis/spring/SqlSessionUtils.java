@@ -173,6 +173,7 @@ public final class SqlSessionUtils {
     SqlSessionHolder holder = (SqlSessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
     if ((holder != null) && (holder.getSqlSession() == session)) {
       LOGGER.debug(() -> "Releasing transactional SqlSession [" + session + "]");
+      // 如果是开启了事务 SqlSession是没有被close的，所以方法体内使用的是一个SqlSession，当然一级缓存可是生效
       holder.released();
     } else {
       LOGGER.debug(() -> "Closing non transactional SqlSession [" + session + "]");

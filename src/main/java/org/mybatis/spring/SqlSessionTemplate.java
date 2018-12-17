@@ -80,6 +80,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
 
   private final ExecutorType executorType;
 
+  // SqlSession代理
   private final SqlSession sqlSessionProxy;
 
   private final PersistenceExceptionTranslator exceptionTranslator;
@@ -132,6 +133,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
     this.sqlSessionFactory = sqlSessionFactory;
     this.executorType = executorType;
     this.exceptionTranslator = exceptionTranslator;
+    // 形成SqlSession代理类
     this.sqlSessionProxy = (SqlSession) newProxyInstance(
         SqlSessionFactory.class.getClassLoader(),
         new Class[] { SqlSession.class },
@@ -416,7 +418,8 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
   //This method forces spring disposer to avoid call of SqlSessionTemplate.close() which gives UnsupportedOperationException
   }
 
-    /**
+  /**
+   * SqlSession 代理类，MyBatis路由方法调用得到有Spring Transaction的SqlSession
    * Proxy needed to route MyBatis method calls to the proper SqlSession got
    * from Spring's Transaction Manager
    * It also unwraps exceptions thrown by {@code Method#invoke(Object, Object...)} to
@@ -425,15 +428,18 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
   private class SqlSessionInterceptor implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      // 每次新生成一个SqlSession，一次调用一个SqlSession
       SqlSession sqlSession = getSqlSession(
           SqlSessionTemplate.this.sqlSessionFactory,
           SqlSessionTemplate.this.executorType,
           SqlSessionTemplate.this.exceptionTranslator);
       try {
         Object result = method.invoke(sqlSession, args);
+        // 判断是否事务
         if (!isSqlSessionTransactional(sqlSession, SqlSessionTemplate.this.sqlSessionFactory)) {
           // force commit even on non-dirty sessions because some databases require
           // a commit/rollback before calling close()
+          // 没有使用事务
           sqlSession.commit(true);
         }
         return result;
@@ -451,6 +457,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
         throw unwrapped;
       } finally {
         if (sqlSession != null) {
+          // 关闭SqlSession
           closeSqlSession(sqlSession, SqlSessionTemplate.this.sqlSessionFactory);
         }
       }

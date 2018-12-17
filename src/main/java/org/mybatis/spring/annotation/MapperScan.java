@@ -29,6 +29,7 @@ import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.annotation.Import;
 
 /**
+ * 当使用Java Config配置时可以使用用此注解来注册Mybatis mapper
  * Use this annotation to register MyBatis mapper interfaces when using Java
  * Config. It performs when same work as {@link MapperScannerConfigurer} via
  * {@link MapperScannerRegistrar}.
@@ -70,8 +71,8 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(MapperScannerRegistrar.class)
-@Repeatable(MapperScans.class)
+@Import(MapperScannerRegistrar.class) // 通过导入的方式实现把实例加入springIOC容器中
+@Repeatable(MapperScans.class)// 被此注解修饰的注解是可以重复的。注解的参数是可重复注解的存储容器注解类型。
 public @interface MapperScan {
 
   /**
