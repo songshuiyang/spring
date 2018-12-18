@@ -72,7 +72,7 @@ import org.springframework.context.annotation.Import;
 @Target(ElementType.TYPE)
 @Documented
 @Import(MapperScannerRegistrar.class) // 通过导入的方式实现把实例加入springIOC容器中
-@Repeatable(MapperScans.class)// 被此注解修饰的注解是可以重复的。注解的参数是可重复注解的存储容器注解类型。
+@Repeatable(MapperScans.class)// 被此注解修饰的注解是可以重复的。注解的参数是可重复注解的存储容器注解类型。@Repeatable括号内的就相当于用来保存该注解内容的容器。
 public @interface MapperScan {
 
   /**

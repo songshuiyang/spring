@@ -66,7 +66,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
    */
   @Override
   public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-    // 拿到注解信息
+    // 拿到注解信息，内部实现是 LinkedHashMap
     AnnotationAttributes mapperScanAttrs = AnnotationAttributes
         .fromMap(importingClassMetadata.getAnnotationAttributes(MapperScan.class.getName()));
     if (mapperScanAttrs != null) {
@@ -107,11 +107,12 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
     scanner.setSqlSessionFactoryBeanName(annoAttrs.getString("sqlSessionFactoryRef"));
 
     List<String> basePackages = new ArrayList<>();
+    // 如果配置了包路径则将入进去
     basePackages.addAll(
         Arrays.stream(annoAttrs.getStringArray("value"))
             .filter(StringUtils::hasText)
             .collect(Collectors.toList()));
-    // 如果配置了包路径则将入进去
+    // 与上面功能一致
     basePackages.addAll(
         Arrays.stream(annoAttrs.getStringArray("basePackages"))
             .filter(StringUtils::hasText)
@@ -123,6 +124,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
             .collect(Collectors.toList()));
 
     scanner.registerFilters();
+    // 开始扫描包
     scanner.doScan(StringUtils.toStringArray(basePackages));
   }
 

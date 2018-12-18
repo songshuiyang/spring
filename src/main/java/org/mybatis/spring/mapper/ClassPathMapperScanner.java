@@ -152,11 +152,13 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
    */
   @Override
   public Set<BeanDefinitionHolder> doScan(String... basePackages) {
+    // 通过Spring 的ClassPathBeanDefinitionScanner 类来生成BeanDefinitionHolder
     Set<BeanDefinitionHolder> beanDefinitions = super.doScan(basePackages);
 
     if (beanDefinitions.isEmpty()) {
       LOGGER.warn(() -> "No MyBatis mapper was found in '" + Arrays.toString(basePackages) + "' package. Please check your configuration.");
     } else {
+      // 在这里完成对Spring Bean的属性配置
       processBeanDefinitions(beanDefinitions);
     }
 
@@ -174,7 +176,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
       // the mapper interface is the original class of the bean
       // but, the actual class of the bean is MapperFactoryBean
       definition.getConstructorArgumentValues().addGenericArgumentValue(beanClassName); // issue #59
-      // Mapper接口的源头Bean，实际的源头Bean是MapperFactoryBean
+      // Mapper接口的源头Bean，实际的源头Bean是MapperFactoryBean，Mapper是由该bean生成
       definition.setBeanClass(this.mapperFactoryBean.getClass());
 
       definition.getPropertyValues().add("addToConfig", this.addToConfig);

@@ -301,6 +301,7 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
   @Override
   public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
     if (this.processPropertyPlaceHolders) {
+      // 处理PropertyResourceConfigurers 加载属性配置问题
       processPropertyPlaceHolders();
     }
 
@@ -315,10 +316,13 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
     scanner.setResourceLoader(this.applicationContext);
     scanner.setBeanNameGenerator(this.nameGenerator);
     scanner.registerFilters();
+    // 扫描basePackage
     scanner.scan(StringUtils.tokenizeToStringArray(this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
   }
 
   /*
+   * BeanDefinitionRegistries 和 BeanFactoryPostProcessors 先后执行顺序问题，将会导致
+   * PropertyResourceConfigurers 不会去加载任何属性配置，所以使用此方法来处理该问题
    * BeanDefinitionRegistries are called early in application startup, before
    * BeanFactoryPostProcessors. This means that PropertyResourceConfigurers will not have been
    * loaded and any property substitution of this class' properties will fail. To avoid this, find
