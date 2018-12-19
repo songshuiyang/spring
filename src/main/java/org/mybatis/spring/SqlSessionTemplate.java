@@ -427,14 +427,15 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
   private class SqlSessionInterceptor implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      // 每次新生成一个SqlSession，一次调用一个SqlSession
+      // 获取SqlSession(这个SqlSession才是真正使用的，它不是线程安全的)
       SqlSession sqlSession = getSqlSession(
           SqlSessionTemplate.this.sqlSessionFactory,
           SqlSessionTemplate.this.executorType,
           SqlSessionTemplate.this.exceptionTranslator);
       try {
+        // 调用真实SqlSession的方法
         Object result = method.invoke(sqlSession, args);
-        // 判断是否事务
+        // 判断一下当前的sqlSession是否被Spring托管
         if (!isSqlSessionTransactional(sqlSession, SqlSessionTemplate.this.sqlSessionFactory)) {
           // force commit even on non-dirty sessions because some databases require
           // a commit/rollback before calling close()
@@ -456,7 +457,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
         throw unwrapped;
       } finally {
         if (sqlSession != null) {
-          // 关闭SqlSession
+          // 关闭SqlSession,如果sqlSession被Spring管理 则调用holder.released(); 使计数器-1
           closeSqlSession(sqlSession, SqlSessionTemplate.this.sqlSessionFactory);
         }
       }

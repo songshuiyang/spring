@@ -87,13 +87,14 @@ public final class SqlSessionUtils {
     notNull(sessionFactory, NO_SQL_SESSION_FACTORY_SPECIFIED);
     notNull(executorType, NO_EXECUTOR_TYPE_SPECIFIED);
 
+    // 根据sqlSessionFactory从当前线程对应的资源map中获取SqlSessionHolder
     SqlSessionHolder holder = (SqlSessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
 
     SqlSession session = sessionHolder(executorType, holder);
     if (session != null) {
       return session;
     }
-
+    // 如果找不到，则根据执行类型构造一个新的sqlSession
     LOGGER.debug(() -> "Creating a new SqlSession");
     session = sessionFactory.openSession(executorType);
 
@@ -149,9 +150,8 @@ public final class SqlSessionUtils {
       if (holder.getExecutorType() != executorType) {
         throw new TransientDataAccessResourceException("Cannot change the ExecutorType when there is an existing transaction");
       }
-
+      // 增加该holder,也就是同一事务中同一个sqlSessionFactory创建的唯一sqlSession，其引用数增加，被使用的次数增加
       holder.requested();
-
       LOGGER.debug(() -> "Fetched SqlSession [" + holder.getSqlSession() + "] from current transaction");
       session = holder.getSqlSession();
     }

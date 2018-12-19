@@ -429,6 +429,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
         configuration.getVariables().putAll(this.configurationProperties);
       }
     } else if (this.configLocation != null) {
+      // 解析Mybatis配置文件
       xmlConfigBuilder = new XMLConfigBuilder(this.configLocation.getInputStream(), null, this.configurationProperties);
       configuration = xmlConfigBuilder.getConfiguration();
     } else {
@@ -450,7 +451,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
     if (this.vfs != null) {
       configuration.setVfsImpl(this.vfs);
     }
-
+    // 基于包名注册别名
     if (hasLength(this.typeAliasesPackage)) {
       String[] typeAliasPackageArray = tokenizeToStringArray(this.typeAliasesPackage,
           ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
@@ -460,21 +461,21 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
         LOGGER.debug(() -> "Scanned package: '" + packageToScan + "' for aliases");
       }
     }
-
+    // 注册别名
     if (!isEmpty(this.typeAliases)) {
       for (Class<?> typeAlias : this.typeAliases) {
         configuration.getTypeAliasRegistry().registerAlias(typeAlias);
         LOGGER.debug(() -> "Registered type alias: '" + typeAlias + "'");
       }
     }
-
+    // 添加插件
     if (!isEmpty(this.plugins)) {
       for (Interceptor plugin : this.plugins) {
         configuration.addInterceptor(plugin);
         LOGGER.debug(() -> "Registered plugin: '" + plugin + "'");
       }
     }
-
+    // 基于包名注册类型处理器
     if (hasLength(this.typeHandlersPackage)) {
       String[] typeHandlersPackageArray = tokenizeToStringArray(this.typeHandlersPackage,
           ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
@@ -483,7 +484,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
         LOGGER.debug(() -> "Scanned package: '" + packageToScan + "' for type handlers");
       }
     }
-
+    // 添加类型处理器
     if (!isEmpty(this.typeHandlers)) {
       for (TypeHandler<?> typeHandler : this.typeHandlers) {
         configuration.getTypeHandlerRegistry().register(typeHandler);
@@ -519,7 +520,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
     }
 
     configuration.setEnvironment(new Environment(this.environment, this.transactionFactory, this.dataSource));
-
+    // 解析Mapper
     if (!isEmpty(this.mapperLocations)) {
       for (Resource mapperLocation : this.mapperLocations) {
         if (mapperLocation == null) {
