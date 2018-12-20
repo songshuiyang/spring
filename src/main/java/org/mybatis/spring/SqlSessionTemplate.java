@@ -442,6 +442,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
           // 没有使用事务
           sqlSession.commit(true);
         }
+
         return result;
       } catch (Throwable t) {
         Throwable unwrapped = unwrapThrowable(t);
