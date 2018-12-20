@@ -427,7 +427,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
   private class SqlSessionInterceptor implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      // 获取SqlSession(这个SqlSession才是真正使用的，它不是线程安全的)
+      // 获取SqlSession(这个SqlSession才是真正使用的，它不是线程安全的) 这个方法可以根据Spring的事物上下文来获取事物范围内的sqlSession
       SqlSession sqlSession = getSqlSession(
           SqlSessionTemplate.this.sqlSessionFactory,
           SqlSessionTemplate.this.executorType,
@@ -435,7 +435,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
       try {
         // 调用真实SqlSession的方法
         Object result = method.invoke(sqlSession, args);
-        // 判断一下当前的sqlSession是否被Spring托管
+        // 然后判断一下当前的sqlSession是否被Spring托管 如果未被Spring托管则自动commit
         if (!isSqlSessionTransactional(sqlSession, SqlSessionTemplate.this.sqlSessionFactory)) {
           // force commit even on non-dirty sessions because some databases require
           // a commit/rollback before calling close()
