@@ -41,6 +41,9 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 
 /**
+ * 该类是线程安全的，由 Spring 管理，与Spring事物管理一起配合，确保实际使用的SqlSession是与
+ * 当前Spring事务关联的，由Spring来管理Session的生命周期，包括closing，committing，or
+ * rolling back，这些是作为Spring事务管理的基础
  * Thread safe, Spring managed, {@code SqlSession} that works with Spring
  * transaction management to ensure that that the actual SqlSession used is the
  * one associated with the current Spring transaction. In addition, it manages
@@ -75,9 +78,9 @@ import org.springframework.dao.support.PersistenceExceptionTranslator;
  * @see MyBatisExceptionTranslator
  */
 public class SqlSessionTemplate implements SqlSession, DisposableBean {
-
+  // 会话工厂
   private final SqlSessionFactory sqlSessionFactory;
-
+  // 执行器类型
   private final ExecutorType executorType;
   // SqlSession代理
   private final SqlSession sqlSessionProxy;
@@ -442,7 +445,6 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
           // 没有使用事务
           sqlSession.commit(true);
         }
-
         return result;
       } catch (Throwable t) {
         Throwable unwrapped = unwrapThrowable(t);
