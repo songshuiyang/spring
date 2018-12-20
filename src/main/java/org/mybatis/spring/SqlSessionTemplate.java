@@ -43,7 +43,8 @@ import org.springframework.dao.support.PersistenceExceptionTranslator;
 /**
  * 该类是线程安全的，由 Spring 管理，与Spring事物管理一起配合，确保实际使用的SqlSession是与
  * 当前Spring事务关联的，由Spring来管理Session的生命周期，包括closing，committing，or
- * rolling back，这些是作为Spring事务管理的基础
+ * rolling back，这些是Spring事务管理的基础条件
+ *
  * Thread safe, Spring managed, {@code SqlSession} that works with Spring
  * transaction management to ensure that that the actual SqlSession used is the
  * one associated with the current Spring transaction. In addition, it manages
@@ -430,7 +431,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
   private class SqlSessionInterceptor implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      // 获取SqlSession(这个SqlSession才是真正使用的，它不是线程安全的) 这个方法可以根据Spring的事物上下文来获取事物范围内的sqlSession
+      // 获取SqlSession，这个SqlSession才是真正使用的 这个方法可以根据Spring的事物上下文来获取事物范围内的sqlSession
       SqlSession sqlSession = getSqlSession(
           SqlSessionTemplate.this.sqlSessionFactory,
           SqlSessionTemplate.this.executorType,
